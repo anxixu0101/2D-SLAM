@@ -15,7 +15,7 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(TEST test.cpp)
+add_executable(TEST test.cpp map_builder.cpp)
 
 target_include_directories(TEST PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
