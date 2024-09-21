@@ -29,11 +29,12 @@ public:
     {
         return last_lidar_cloud_;
     }
-
+    int GetLidarFrame(){ return lidar_frame_;}
+  
 private:
     void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr msg) 
     {
-
+        lidar_frame_++;
         last_lidar_cloud_->clear();
         
         // 遍历 LaserScan 数据，将其转换为 PCL 点云
@@ -73,6 +74,7 @@ private:
 
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr last_lidar_cloud_;
+    int lidar_frame_ = 0;
 };
 
 #endif

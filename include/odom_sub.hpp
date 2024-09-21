@@ -20,26 +20,27 @@ public:
     bool HasOdomData() const {
         return has_odom_data_;  // 判断是否有里程计数据
     }
+    double GetOdomTranslate(){ return delta_xy_;}
 private:
     void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg) 
     {
 
         last_odom_ = *msg;
-        has_odom_data_ = true;
-        // // 获取机器人在坐标系中的位置
-        // auto position = msg->pose.pose.position;
-        // auto orientation = msg->pose.pose.orientation;
+         if (!has_odom_data_) {
+            prev_odom_ = *msg;
+            has_odom_data_ = true;
+            return;
+        }
+        // 计算位移增量
+        double delta_x = msg->pose.pose.position.x - prev_odom_.pose.pose.position.x;
+        double delta_y = msg->pose.pose.position.y - prev_odom_.pose.pose.position.y;
+        double delta_z = msg->pose.pose.position.z - prev_odom_.pose.pose.position.z;
 
-        // // 打印位置信息
-       //  RCLCPP_INFO(this->get_logger(), "Position: x=%.2f, y=%.2f, z=%.2f", position.x, position.y, position.z);
+        // 计算二维平面上的位移增量（忽略 z 轴）
+         delta_xy_ = std::sqrt(delta_x * delta_x + delta_y * delta_y);
 
-        // // 打印方向信息（四元数表示）
-        // RCLCPP_INFO(this->get_logger(), "Orientation: x=%.2f, y=%.2f, z=%.2f, w=%.2f", 
-        //             orientation.x, orientation.y, orientation.z, orientation.w);
-        // if (log_file_.is_open()) {
-        //     log_file_ << position.x << " " << position.y  << std::endl;
-        //    // log_file_ << "Orientation: x=" << orientation.x << ", y=" << orientation.y << ", z=" << orientation.z << ", w=" << orientation.w << std::endl;
-        // }
+        // 更新前一帧的 odom 数据
+        prev_odom_ = *msg;
     }
 
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr subscription_;
@@ -48,6 +49,8 @@ private:
 private:
     nav_msgs::msg::Odometry last_odom_; 
     bool has_odom_data_ = false;
+    nav_msgs::msg::Odometry prev_odom_;  // 存储前一帧的 odom 数据
+    double delta_xy_;
 
 };
 #endif

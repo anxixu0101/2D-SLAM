@@ -10,17 +10,19 @@
 #include <pcl/common/transforms.h>  // For pcl::transformPointCloud
 #include "lidar_sub.hpp"
 #include "odom_sub.hpp"
+#include "front_end.hpp"
 class MapBuilder : public rclcpp::Node {
 public:
-    MapBuilder(std::shared_ptr<OdomSubscriber> odom_sub, std::shared_ptr<LidarListener> lidar_sub);
+    MapBuilder();
 
-    void buildMap();
+    void buildMap(const nav_msgs::msg::Odometry::SharedPtr odom, 
+                          const pcl::PointCloud<pcl::PointXYZ>::Ptr lidar_cloud,int lidar_frame);
 private:
     void publishMap();  // 负责发布地图
 
 private:
-    std::shared_ptr<OdomSubscriber> odom_sub_;
-    std::shared_ptr<LidarListener> lidar_sub_;
+
+    std::shared_ptr<FrontEnd> front_end_;
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_cloud_;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_publisher_;
 };
