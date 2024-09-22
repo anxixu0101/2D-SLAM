@@ -26,11 +26,12 @@ void FrontEnd::ScanMatch(const pcl::PointCloud<pcl::PointXYZ>::Ptr &source_cloud
 
     // Step 2: Set up the ICP object
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-    icp.setInputSource(source_cloud); // 设置初始变换后的源点云
+    icp.setInputSource(transformed_source); // 设置初始变换后的源点云
     icp.setInputTarget(target_cloud);       // 设置目标点云
 
     // 设置 ICP 算法的参数
-    icp.setMaximumIterations(1000);         // 最大迭代次数为 50
+    icp.setMaxCorrespondenceDistance(1);
+    icp.setMaximumIterations(500);         // 最大迭代次数为 50
     icp.setTransformationEpsilon(1e-8);   // 设置收敛条件，连续两次变换的差异阈值
     icp.setEuclideanFitnessEpsilon(1e-5); // 设置最终误差的收敛条件
 

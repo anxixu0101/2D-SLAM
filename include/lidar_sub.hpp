@@ -17,6 +17,7 @@
 class LidarListener : public rclcpp::Node
 {
 public:
+public:
     LidarListener() : Node("lidar_listener")
     {
         // 订阅雷达数据的话题
@@ -25,17 +26,21 @@ public:
         last_lidar_cloud_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
         point_cloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/pcl_points", 10);
     }
-    pcl::PointCloud<pcl::PointXYZ>::Ptr GetLidarData() 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr GetLidarData()
     {
         return last_lidar_cloud_;
     }
-    int GetLidarFrame(){ return lidar_frame_;}
-  
+    sensor_msgs::msg::LaserScan GetLaserData() { return laser_msg_; }
+    int GetLidarFrame() { return lidar_frame_; }
+
 private:
-    void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr msg) 
+    void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     {
-        lidar_frame_++;
+        
         last_lidar_cloud_->clear();
+         lidar_frame_++;
+         laser_msg_ = *msg;
+
         
         // 遍历 LaserScan 数据，将其转换为 PCL 点云
         for (size_t i = 0; i < msg->ranges.size(); ++i)
@@ -58,15 +63,6 @@ private:
         last_lidar_cloud_->width = last_lidar_cloud_->points.size();
         last_lidar_cloud_->height = 1;
         last_lidar_cloud_->is_dense = true;
-
-        // // 将 PCL 点云转换为 ROS 消息
-        // sensor_msgs::msg::PointCloud2 output;
-        // pcl::toROSMsg(*cloud, output);
-        // output.header.frame_id = "pcd_map";
-        // output.header.stamp = msg->header.stamp;
-
-        // // 发布点云
-        // point_cloud_publisher_->publish(output);
     }
 
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr subscription_;
@@ -74,7 +70,9 @@ private:
 
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr last_lidar_cloud_;
+    sensor_msgs::msg::LaserScan laser_msg_;
     int lidar_frame_ = 0;
+    
 };
 
 #endif

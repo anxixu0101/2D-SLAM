@@ -36,6 +36,7 @@ private:
     std::shared_ptr<MapBuilder> map_builder_;
     int lidar_frame_ =0;
     pcl::PointCloud<pcl::PointXYZ>::Ptr last_lidar_cloud_;
+    mutable std::ofstream log_file_;
 };
 
 #endif  // ODOM_LIDAR_SYNC_HPP
